@@ -1,0 +1,94 @@
+terraform {
+  # backend "remote" {
+  #   organization = "FiapPostech-SOAT"
+  #   workspaces {
+  #     name = "bmb-authenticator"
+  #   }
+  # }
+}
+
+
+data "aws_vpc" "vpc" {
+  filter {
+    name   = "tag:Name"
+    values = [var.vpc_name]
+  }
+
+  filter {
+    name   = "tag:Terraform"
+    values = ["true"]
+  }
+}
+
+data "aws_subnets" "private_subnets" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.vpc.id]
+  }
+
+  filter {
+    name   = "tag:Terraform"
+    values = ["true"]
+  }
+
+  filter {
+    # name   = "tag:kubernetes.io/role/elb"
+    name   = "kubernetes.io/role/internal-elb"
+    values = ["1"]
+  }
+}
+
+data "aws_subnet" "subnet" {
+  for_each = toset(data.aws_subnets.private_subnets.ids)
+  id       = each.value
+}
+
+data "aws_rds_cluster" "bancodedados" {
+  cluster_identifier = "testdatabase-mysqlv2"
+}
+
+module "aurora_db_serverless_cluster" {
+  source  = "terraform-aws-modules/rds-aurora/aws"
+  version = "~> 9.9.0"
+
+  name              = "testdatabase-mysqlv2"
+  engine            = "aurora-mysql"
+  engine_mode       = "provisioned"
+  engine_version    = "8.0"
+  storage_encrypted = false
+
+  instance_class = "db.serverless"
+
+  instances = {
+    dev = {}
+  }
+
+  master_username             = "techchallenge"
+  master_password             = "F#P9ia-3"
+  manage_master_user_password = false
+
+  autoscaling_enabled  = false
+  vpc_id               = data.aws_vpc.vpc.id
+  db_subnet_group_name = var.vpc_name
+  security_group_rules = {
+    vpc_ingress = {
+      cidr_blocks = [for s in data.aws_subnet.subnet : s.cidr_block]
+    }
+  }
+
+  publicly_accessible             = true
+  apply_immediately               = true
+  enabled_cloudwatch_logs_exports = ["general"]
+
+  monitoring_interval = 0
+  skip_final_snapshot = true
+
+  serverlessv2_scaling_configuration = {
+    min_capacity = 1
+    max_capacity = 2
+  }
+
+  tags = {
+    Terraform = "true"
+  }
+}
