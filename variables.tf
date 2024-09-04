@@ -15,3 +15,20 @@ variable "vpc_name" {
   description = "VPC Name"
   default     = "eks-fiap-vpc"
 }
+
+variable "cluster_name" {
+  type    = string
+  default = "techchallenge-mysql"
+}
+
+variable "username" {
+  type      = string
+  sensitive = true
+  default   = "techchallenge"
+}
+
+variable "password" {
+  type      = string
+  sensitive = true
+  default   = "F#P9ia-3"
+}
