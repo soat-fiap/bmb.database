@@ -61,7 +61,7 @@ jobs:
     if: github.event_name == 'pull_request'
     name: "Terraform Plan"
     runs-on: ubuntu-latest"
-    environment: ${{ env.ENVIRONMENT }}
+    environment: "$ENVIRONMENT"
     permissions:
       contents: read
       pull-requests: write
@@ -145,7 +145,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     name: "Terraform Apply"
     runs-on: ubuntu-latest
-    environment: ${{ env.ENVIRONMENT }}
+    environment: "$ENVIRONMENT"
     permissions:
       contents: read
     steps:
@@ -160,7 +160,7 @@ jobs:
           database_name = "${{ vars.BMB_MYSQL_DATABASE }}"
           username = "${{ secrets.BMB_MYSQL_USER }}"
           password = "${{ secrets.BMB_MYSQL_PASSWORD }}"
-          environment = "${{ env.ENVIRONMENT }}"
+          environment = "$ENVIRONMENT"
           EOF
 
       - name: Upload Configuration
