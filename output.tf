@@ -7,7 +7,7 @@ output "subnet_cidr_blocks" {
 }
 
 output "cluster" {
-  value = module.aurora_db_serverless_cluster
+  value     = module.aurora_db_serverless_cluster
   sensitive = true
 }
 

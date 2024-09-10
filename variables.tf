@@ -21,6 +21,11 @@ variable "cluster_name" {
   default = "techchallenge-mysql"
 }
 
+variable "database_name" {
+  type    = string
+  default = "techchallenge"
+}
+
 variable "username" {
   type      = string
   sensitive = true
@@ -31,4 +36,9 @@ variable "password" {
   type      = string
   sensitive = true
   default   = "F#P9ia-3"
+}
+
+variable "environment" {
+  default = "dev"
+  type    = string
 }
