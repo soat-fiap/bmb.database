@@ -17,6 +17,8 @@ permissions:
 jobs:
 
   test:
+    env:
+      ENVIRONMENT: $ENVIRONMENT
     name: 'Test'
     runs-on: ubuntu-latest
     environment: ${{ env.ENVIRONMENT }}
@@ -57,6 +59,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   plan:
+    env:
+      ENVIRONMENT: $ENVIRONMENT
     needs: [test]
     if: github.event_name == 'pull_request'
     name: "Terraform Plan"
@@ -141,6 +145,8 @@ jobs:
 
 
   deploy:
+    env:
+      ENVIRONMENT: $ENVIRONMENT
     needs: [test]
     if: github.ref == 'refs/heads/main'
     name: "Terraform Apply"
