@@ -63,7 +63,7 @@ jobs:
     needs: [test]
     if: github.event_name == 'pull_request'
     name: "Terraform Plan"
-    runs-on: ubuntu-latest"
+    runs-on: ubuntu-latest
     environment: dev
     permissions:
       contents: read
