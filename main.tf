@@ -46,7 +46,7 @@ data "aws_subnets" "public_subnets" {
 }
 
 data "aws_subnet" "subnet" {
-  for_each = toset(concat(data.aws_subnets.public_subnets.ids, data.aws_subnets.private_subnets.ids))
+  for_each = toset(concat(data.aws_subnets.private_subnets.ids))
   id       = each.value
 }
 
@@ -54,8 +54,8 @@ module "aurora_db_serverless_cluster" {
   source  = "terraform-aws-modules/rds-aurora/aws"
   version = "~> 9.9.0"
 
-  name              = "${var.cluster_name}"
-  database_name     = "techchallenge"
+  name              = var.cluster_name
+  database_name     = var.database_name
   engine            = "aurora-mysql"
   engine_mode       = "serverless"
   storage_encrypted = true
@@ -69,7 +69,7 @@ module "aurora_db_serverless_cluster" {
   master_password             = var.password
   manage_master_user_password = false
 
-  autoscaling_enabled  = false  
+  autoscaling_enabled  = false
   vpc_id               = data.aws_vpc.vpc.id
   db_subnet_group_name = var.vpc_name
   security_group_rules = {
@@ -78,12 +78,12 @@ module "aurora_db_serverless_cluster" {
     }
   }
 
-  publicly_accessible             = true
-  apply_immediately               = true
+  publicly_accessible = true
+  apply_immediately   = true
   # enabled_cloudwatch_logs_exports = ["general"]
-  enable_http_endpoint            = true
-  monitoring_interval             = 0
-  skip_final_snapshot             = true
+  enable_http_endpoint = true
+  monitoring_interval  = 0
+  skip_final_snapshot  = true
 
   serverlessv2_scaling_configuration = {
     min_capacity = 1
@@ -91,7 +91,7 @@ module "aurora_db_serverless_cluster" {
   }
 
   tags = {
-    Terraform = "true"
+    Terraform   = "true"
+    Environment = var.environment
   }
-
 }

@@ -12,10 +12,11 @@ provider "aws" {
   profile = var.profile
   region  = var.region
   alias   = "us-east-1"
-  
+
   default_tags {
-    tags = { 
+    tags = {
       ManagedBy = "Terraform"
+      "teste"   = "teste"
     }
   }
 }
