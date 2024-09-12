@@ -18,24 +18,24 @@ variable "vpc_name" {
 
 variable "cluster_name" {
   type    = string
-  default = "techchallenge-mysql"
+  default = "techchallenge-mysql-default"
 }
 
 variable "database_name" {
   type    = string
-  default = "techchallenge"
+  default = "techchallenge-default"
 }
 
 variable "username" {
   type      = string
   sensitive = true
-  default   = "techchallenge"
+  default   = "techchallenge-default"
 }
 
 variable "password" {
   type      = string
   sensitive = true
-  default   = "F#P9ia-3"
+  default   = "F#P9ia-3-default"
 }
 
 variable "environment" {

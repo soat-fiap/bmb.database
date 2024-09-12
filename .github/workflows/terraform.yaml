@@ -2,6 +2,7 @@ name: 'Terraform build'
 
 on:
   push:
+    branches: [ "main" ]
   pull_request:
 
 env:
@@ -15,9 +16,27 @@ permissions:
 
 jobs:
 
+  terraform-settings:
+    name: "Terraform Settings"
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Config
+      run: |
+        cat <<EOF > db.auto.tfvars
+        cluster_name = "${{ vars.BMB_MYSQL_CLUSTER }}"
+        vpc_name = "${{ vars.BMB_EKS_CLUSTER_VPC }}"
+        username = "${{ secrets.BMB_MYSQL_USER }}"
+        password = "${{ secrets.BMB_MYSQL_PASSWORD }}"
+        EOF
+
+    - name: Upload Configuration
+      uses: actions/upload-artifact@v4
+      with:
+        name: database-config
+        path: db.auto.tfvars
+
   test:
-    env:
-      ENVIRONMENT: $ENVIRONMENT
     name: 'Test'
     runs-on: ubuntu-latest
     environment: dev
@@ -30,8 +49,13 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    - name: Download Configuration
+      uses: actions/download-artifact@v4
+      with:
+        name: database-config
+
     - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
+      uses: hashicorp/setup-terraform@v1
       with:
         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
@@ -43,7 +67,6 @@ jobs:
       run: terraform test
 
   sonarcloud:
-    needs: [test]
     if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
     name: SonarCloud
     runs-on: ubuntu-latest
@@ -57,14 +80,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-  plan:
-    env:
-      ENVIRONMENT: $ENVIRONMENT
-    needs: [test]
+  terraform-plan:
+    needs: [test, terraform-settings]
     if: github.event_name == 'pull_request'
+    environment: dev
     name: "Terraform Plan"
     runs-on: ubuntu-latest
-    environment: dev
     permissions:
       contents: read
       pull-requests: write
@@ -72,16 +93,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Create .auto.tfvars file
-        run: |
-          cat <<EOF > db.auto.tfvars
-          vpc_name = "${{ vars.BMB_EKS_CLUSTER_VPC }}"
-          cluster_name = "${{ vars.BMB_MYSQL_CLUSTER }}"
-          database_name = "${{ vars.BMB_MYSQL_DATABASE }}"
-          username = "${{ secrets.BMB_MYSQL_USER }}"
-          password = "${{ secrets.BMB_MYSQL_PASSWORD }}"
-          environment = "dev"
-          EOF
+      - name: Download Configuration
+        uses: actions/download-artifact@v4
+        with:
+          name: database-config
 
       - name: Upload Configuration
         uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.3.1
@@ -90,7 +105,7 @@ jobs:
           workspace: ${{ env.TF_WORKSPACE }}
           directory: ${{ env.CONFIG_DIRECTORY }}
           speculative: true
-  
+
       - name: Create Plan Run
         uses: hashicorp/tfc-workflows-github/actions/create-run@v1.3.1
         id: plan-run
@@ -141,12 +156,8 @@ jobs:
               body: output
             });
 
-
-
   deploy:
-    env:
-      ENVIRONMENT: $ENVIRONMENT
-    needs: [test]
+    needs: [test, terraform-settings]
     if: github.ref == 'refs/heads/main'
     name: "Terraform Apply"
     runs-on: ubuntu-latest
@@ -157,16 +168,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Create .auto.tfvars file
-        run: |
-          cat <<EOF > db.auto.tfvars
-          vpc_name = "${{ vars.BMB_EKS_CLUSTER_VPC }}"
-          cluster_name = "${{ vars.BMB_MYSQL_CLUSTER }}"
-          database_name = "${{ vars.BMB_MYSQL_DATABASE }}"
-          username = "${{ secrets.BMB_MYSQL_USER }}"
-          password = "${{ secrets.BMB_MYSQL_PASSWORD }}"
-          environment = "dev"
-          EOF
+      - name: Download Configuration
+        uses: actions/download-artifact@v4
+        with:
+          name: database-config
 
       - name: Upload Configuration
         uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.3.1
@@ -174,11 +179,19 @@ jobs:
         with:
           workspace: ${{ env.TF_WORKSPACE }}
           directory: ${{ env.CONFIG_DIRECTORY }}
-  
+
       - name: Create Apply Run
         uses: hashicorp/tfc-workflows-github/actions/create-run@v1.3.1
         id: apply-run
         with:
           workspace: ${{ env.TF_WORKSPACE }}
           configuration_version: ${{ steps.apply-upload.outputs.configuration_version_id }}
-          message: "Create Run from GitHub Actions CI ${{ github.sha }}"
+          message: "Plan Run from GitHub Actions CI ${{ github.sha }}"
+
+      - name: Apply
+        uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.3.1
+        if: fromJSON(steps.apply-run.outputs.payload).data.attributes.actions.IsConfirmable && ${{ vars.TF_AUTO_APPROVE == 'true' }}
+        id: apply
+        with:
+          run: ${{ steps.apply-run.outputs.run_id }}
+          comment: "Apply Run from GitHub Actions CI ${{ github.sha }}"
