@@ -1,4 +1,4 @@
-use techchallenge;
+use techchallengedb;
 
 create table IF NOT EXISTS Customers
 (
