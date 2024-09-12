@@ -25,6 +25,7 @@ jobs:
       run: |
         cat <<EOF > db.auto.tfvars
         cluster_name = "${{ vars.BMB_MYSQL_CLUSTER }}"
+        database_name = "${{ vars.BMB_MYSQL_DATABASE }}"
         vpc_name = "${{ vars.BMB_EKS_CLUSTER_VPC }}"
         username = "${{ secrets.BMB_MYSQL_USER }}"
         password = "${{ secrets.BMB_MYSQL_PASSWORD }}"
@@ -79,7 +80,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          
+
 
   terraform-plan:
     needs: [test, terraform-settings]
