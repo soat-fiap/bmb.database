@@ -55,6 +55,11 @@ jobs:
       with:
         name: database-config
 
+    - name: Download Configuration
+      uses: actions/download-artifact@v4
+      with:
+        name: database-config
+
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
@@ -73,6 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: SonarCloud Scan
@@ -80,7 +86,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
 
   terraform-plan:
     needs: [test, terraform-settings]
@@ -169,6 +174,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Download Configuration
+        uses: actions/download-artifact@v4
+        with:
+          name: database-config
 
       - name: Download Configuration
         uses: actions/download-artifact@v4
