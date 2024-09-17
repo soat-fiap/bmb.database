@@ -88,14 +88,17 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout
+        if: false  
         uses: actions/checkout@v4
 
       - name: Download Configuration
+        if: false  
         uses: actions/download-artifact@v4
         with:
           name: database-config
 
       - name: Upload Configuration
+        if: false  
         uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.3.1
         id: plan-upload
         with:
@@ -104,6 +107,7 @@ jobs:
           speculative: true
 
       - name: Create Plan Run
+        if: false  
         uses: hashicorp/tfc-workflows-github/actions/create-run@v1.3.1
         id: plan-run
         with:
@@ -112,12 +116,14 @@ jobs:
           plan_only: true
 
       - name: Get Plan Output
+        if: false  
         uses: hashicorp/tfc-workflows-github/actions/plan-output@v1.3.1
         id: plan-output
         with:
           plan: ${{ fromJSON(steps.plan-run.outputs.payload).data.relationships.plan.data.id }}
 
       - name: Update PR
+        if: false
         uses: actions/github-script@v7
         id: plan-comment
         with:
@@ -173,7 +179,7 @@ jobs:
       - name: "v3"
         continue-on-error: true
         run: |
-          vpc_id2=$(echo "${{ toJson(steps.output.outputs.outputs) }}" | jq -r '.[] | select(.name == "vpc_id") | .value')
+          vpc_id2=$(echo ${{ toJson(steps.output.outputs.outputs) }} | jq -r '.[] | select(.name == "vpc_id") | .value')
           echo "$vpc_id2"
 
       - name: "v4"
@@ -185,7 +191,7 @@ jobs:
       - name: "v5"
         continue-on-error: true
         run: |
-          echo { "name": "John" } | jq -r '.[] | select(.name == "John") | .name'
+          echo ${{ toJson(steps.output.outputs.outputs) }}
           
           
 
