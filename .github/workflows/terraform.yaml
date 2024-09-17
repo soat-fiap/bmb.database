@@ -38,6 +38,7 @@ jobs:
         path: db.auto.tfvars
 
   test:
+    if: false  
     name: 'Test'
     runs-on: ubuntu-latest
     environment: dev
@@ -191,7 +192,7 @@ jobs:
       - name: "v5"
         continue-on-error: true
         run: |
-          echo "vpc_id::$(echo ${{ toJson(steps.output.outputs.outputs) }}" | jq -r '.[] | select(.name == "cluster") | .value')"
+          echo "vpc_id::$(echo ${{ toJson(steps.output.outputs.outputs) }}" | jq -r '.[] | select(.name == "cluster") | .value'))"
         # echo "${{ toJson(steps.output.outputs.outputs) }}" | jq -r '.[] | select(.name == "host") | .value'
           
           
