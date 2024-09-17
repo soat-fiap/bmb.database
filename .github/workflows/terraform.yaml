@@ -185,14 +185,13 @@ jobs:
       - name: "v4"
         continue-on-error: true
         run: |
-          echo "{ "name": "John" }" | jq -r '.[] | select(.name == "John") | .name'
+          echo "{ \"name\": \"John\" }" | jq -r 'select(.name == "John") | .name'
           
       
       - name: "v5"
         continue-on-error: true
         run: |
-          echo ${{ toJson(steps.output.outputs.outputs) }}
-          echo ${{ toJson(steps.output.outputs.outputs) }} | jq -r '.[] | select(.name == "vpc_id") | .value')
+          echo ${{ toJson(steps.output.outputs.outputs) }}" | jq -r '.[] | select(.name == "vpc_id") | .value'
           
           
 
