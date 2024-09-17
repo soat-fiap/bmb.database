@@ -190,12 +190,19 @@ jobs:
           
       
       - name: "v5"
+        id: salva
         continue-on-error: true
         run: |
-          echo "vpc_id::$(echo ${{ toJson(steps.output.outputs.outputs) }} | jq -r '.[] | select(.name == "vpc_id") | .value')"
-          echo "cluster::$(echo ${{ toJson(steps.output.outputs.outputs) }} | jq -r '.[] | select(.name == "cluster") | .value')"
-          echo "host::$(echo ${{ toJson(steps.output.outputs.outputs) }} | jq -r '.[] | select(.name == "host") | .value')"
+          echo "vpc_id::$(echo ${{ toJson(steps.output.outputs.outputs) }} | jq -r '.[] | select(.name == "vpc_id") | .value')" >> $GITHUB_OUTPUT
+          echo "cluster::$(echo ${{ toJson(steps.output.outputs.outputs) }} | jq -r '.[] | select(.name == "cluster") | .value')" >> $GITHUB_OUTPUT
+          echo "host::$(echo ${{ toJson(steps.output.outputs.outputs) }} | jq -r '.[] | select(.name == "host") | .value')" >> $GITHUB_OUTPUT
         # echo "${{ toJson(steps.output.outputs.outputs) }}" | jq -r '.[] | select(.name == "host") | .value'e'))"
+
+      - name: "leitura"
+        run: |
+          echo ${{ toJson(steps.salva.outputs.vpc_id) }}
+          echo ${{ toJson(steps.salva.outputs.cluster) }}
+          echo ${{ toJson(steps.salva.outputs.host) }}
           
           
 
