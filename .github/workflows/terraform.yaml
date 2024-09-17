@@ -50,16 +50,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Download Configuration
-      uses: actions/download-artifact@v4
-      with:
-        name: database-config
-
-    - name: Download Configuration
-      uses: actions/download-artifact@v4
-      with:
-        name: database-config
-
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
