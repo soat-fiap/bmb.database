@@ -78,7 +78,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   terraform-plan:
-    needs: [test, terraform-settings]
+    # needs: [test, terraform-settings]
     if: github.event_name == 'pull_request'
     environment: dev
     name: "Terraform Plan"
@@ -192,6 +192,7 @@ jobs:
         continue-on-error: true
         run: |
           echo ${{ toJson(steps.output.outputs.outputs) }}
+          echo ${{ toJson(steps.output.outputs.outputs) }} | jq -r '.[] | select(.name == "vpc_id") | .value')
           
           
 
