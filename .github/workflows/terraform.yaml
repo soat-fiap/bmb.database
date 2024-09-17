@@ -269,6 +269,19 @@ jobs:
           -var="aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           echo "secret_arn=$(terraform output -json | jq '.secret_arn.value' | sed 's/"//g')" >> $GITHUB_OUTPUT
 
+      - name: Wake up Cluster
+        continue-on-error: true
+        run: |
+          aws rds-data execute-statement --resource-arn $CLUSTER_ARN --secret-arn $SECRET_ARN --database $DATABASE_NAME --sql "SELECT 1 AS WAKE_UP;"
+        env:
+          CLUSTER_ARN: ${{ needs.deploy.outputs.cluster }}
+          SECRET_ARN: ${{ steps.apply.outputs.secret_arn }}
+          DATABASE_NAME: ${{ vars.BMB_MYSQL_DATABASE }}
+
+      - name: Wait 60s for cluster to wake up
+        run: sleep 60s
+        shell: bash
+
       - name: Create tables
         continue-on-error: true
         run: |
