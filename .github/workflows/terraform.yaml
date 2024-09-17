@@ -173,7 +173,7 @@ jobs:
       - name: "v3"
         continue-on-error: true
         run: |
-          vpc_id2=$(echo "${{ fromJson(steps.output.outputs.outputs) }}" | jq -r '.[] | select(.name == "vpc_id") | .value')
+          vpc_id2=$(echo "${{ toJson(steps.output.outputs.outputs) }}" | jq -r '.[] | select(.name == "vpc_id") | .value')
           echo "$vpc_id2"
 
       - name: "v4"
