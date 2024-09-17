@@ -55,8 +55,13 @@ jobs:
       with:
         name: database-config
 
+    - name: Download Configuration
+      uses: actions/download-artifact@v4
+      with:
+        name: database-config
+
     - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
+      uses: hashicorp/setup-terraform@v3
       with:
         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
@@ -73,6 +78,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - name: SonarCloud Scan
@@ -80,7 +86,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
 
   terraform-plan:
     needs: [test, terraform-settings]
@@ -166,6 +171,10 @@ jobs:
     environment: dev
     permissions:
       contents: read
+    outputs:
+      vpc_id: ${{ steps.apply.outputs.vpc_id }}
+      host: ${{ steps.apply.outputs.host }}
+      cluster: ${{ steps.apply.outputs.cluster }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -192,8 +201,72 @@ jobs:
 
       - name: Apply
         uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.3.1
-        if: fromJSON(steps.apply-run.outputs.payload).data.attributes.actions.IsConfirmable && ${{ vars.TF_AUTO_APPROVE == 'true' }}
+        if: ${{ vars.TF_AUTO_APPROVE == 'true' }}
         id: apply
         with:
           run: ${{ steps.apply-run.outputs.run_id }}
           comment: "Apply Run from GitHub Actions CI ${{ github.sha }}"
+
+  seed-database:
+    needs: [deploy]
+    name: "Seed database"
+    runs-on: ubuntu-latest
+    environment: dev
+    
+    steps:
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v4
+      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+
+      - name: Terraform fmt
+        id: fmt
+        run: terraform fmt -check
+        working-directory: ${{ env.CONFIG_DIRECTORY }}/seed
+        
+      - name: Terraform Init
+        id: init
+        run: terraform init -upgrade
+        working-directory: ${{ env.CONFIG_DIRECTORY }}/seed
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate
+        working-directory: ${{ env.CONFIG_DIRECTORY }}/seed
+
+      - name: Config
+        run: |
+          cat <<EOF > seed.auto.tfvars
+          dbClusterIdentifier = "${{ vars.BMB_MYSQL_CLUSTER }}"
+          database_name = "${{ vars.BMB_MYSQL_DATABASE }}"
+          vpc_id = "${{ needs.deploy.outputs.vpc_id }}"
+          username = "${{ secrets.BMB_MYSQL_USER }}"
+          password = "${{ secrets.BMB_MYSQL_PASSWORD }}"
+          host = "${{ needs.deploy.outputs.host }}"
+          EOF
+
+      - name: Terraform apply
+        id: apply
+        run: terraform apply -auto-approve
+        working-directory:  ${{ env.CONFIG_DIRECTORY }}/seed
+
+      - name: Create tables
+        continue-on-error: true
+        run: |
+          aws rds-data execute-statement --resource-arn $CLUSTER_ARN --secret-arn $SECRET_ARN --database $DATABASE_NAME --sql "$(cat orders_table.sql)"
+          aws rds-data execute-statement --resource-arn $CLUSTER_ARN --secret-arn $SECRET_ARN --database $DATABASE_NAME --sql "$(cat order_items_table.sql)"
+          aws rds-data execute-statement --resource-arn $CLUSTER_ARN --secret-arn $SECRET_ARN --database $DATABASE_NAME --sql "$(cat customers_table.sql)"
+          aws rds-data execute-statement --resource-arn $CLUSTER_ARN --secret-arn $SECRET_ARN --database $DATABASE_NAME --sql "$(cat products_table.sql)"
+          aws rds-data execute-statement --resource-arn $CLUSTER_ARN --secret-arn $SECRET_ARN --database $DATABASE_NAME --sql "$(cat payments_table.sql)"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+          CLUSTER_ARN: ${{ needs.deploy.outputs.cluster }}
+          SECRET_ARN: ${{ steps.apply.outputs.secret_arn }}
+          DATABASE_NAME: ${{ vars.BMB_MYSQL_DATABASE }}
+
+      - name: Terraform Destroy
+        id: destroy
+        run: terraform apply -auto-approve
+        working-directory:  ${{ env.CONFIG_DIRECTORY }}/seed
