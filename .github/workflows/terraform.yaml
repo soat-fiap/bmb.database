@@ -192,8 +192,17 @@ jobs:
       - name: "v5"
         continue-on-error: true
         run: |
-          echo "vpc_id::$(echo ${{ toJson(steps.output.outputs.outputs) }}" | jq -r '.[] | select(.name == "cluster") | .value'))"
+          echo "vpc_id::$(echo ${{ toJson(steps.output.outputs.outputs) }} | jq -r '.[] | select(.name == "cluster") | .value'))"
         # echo "${{ toJson(steps.output.outputs.outputs) }}" | jq -r '.[] | select(.name == "host") | .value'
+      - name: "v6"
+        continue-on-error: true
+        run: |
+          echo "vpc_id::$(echo "${{ toJson(steps.output.outputs.outputs) }}" | jq -r '.[] | select(.name == "cluster") | .value'))"
+
+      - name: "v7"
+        continue-on-error: true
+        run: |
+          echo "vpc_id::$(echo \"${{ toJson(steps.output.outputs.outputs) }}\" | jq -r '.[] | select(.name == "cluster") | .value'))"
           
           
 
