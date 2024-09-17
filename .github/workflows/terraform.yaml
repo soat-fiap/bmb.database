@@ -267,7 +267,7 @@ jobs:
           -var="vpc_id=${{ needs.deploy.outputs.vpc_id }}" \
           -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
           -var="aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-          echo "secret_arn=$(terraform output -json | jq '.secret_arn.value')" >> $GITHUB_OUTPUT
+          echo "secret_arn=$(terraform output -json | jq '.secret_arn.value' | sed 's/"//g')" >> $GITHUB_OUTPUT
 
       - name: Create tables
         continue-on-error: true
