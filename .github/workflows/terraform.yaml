@@ -159,12 +159,20 @@ jobs:
         with:
           workspace: ${{ env.TF_WORKSPACE }}
       
-      - run: |
+      - name: "asdasdasd"
+        continue-on-error: true
+        run: |
           echo "Latest Run Status: "${{ steps.output.outputs.outputs }}""
-      - run: |
+      
+      - name: "v2"
+        continue-on-error: true
+        run: |
           vpc_id=$(echo ${{ steps.output.outputs.outputs }} | jq -r '.[] | select(.name == "vpc_id") | .value')
           echo "$vpc_id"
-      - run: |
+      
+      - name: "v3"
+        continue-on-error: true
+        run: |
           vpc_id2=$(echo "${{ steps.output.outputs.outputs }}" | jq -r '.[] | select(.name == "vpc_id") | .value')
           echo "$vpc_id2"
           
