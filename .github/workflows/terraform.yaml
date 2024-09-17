@@ -239,7 +239,7 @@ jobs:
 
       - name: Config
         run: |
-          cat <<EOF > init/seed.auto.tfvars
+          cat <<EOF > seed.auto.tfvars
           dbClusterIdentifier = "${{ vars.BMB_MYSQL_CLUSTER }}"
           database_name = "${{ vars.BMB_MYSQL_DATABASE }}"
           vpc_id = "${{ needs.deploy.outputs.vpc_id }}"
