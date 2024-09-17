@@ -173,8 +173,21 @@ jobs:
       - name: "v3"
         continue-on-error: true
         run: |
-          vpc_id2=$(echo "${{ steps.output.outputs.outputs }}" | jq -r '.[] | select(.name == "vpc_id") | .value')
+          vpc_id2=$(echo "${{ fromJson(steps.output.outputs.outputs) }}" | jq -r '.[] | select(.name == "vpc_id") | .value')
           echo "$vpc_id2"
+
+      - name: "v4"
+        continue-on-error: true
+        run: |
+          vpc_id2=$(echo "{ "name": "John" }" | jq -r '.[] | select(.name == "John") | .name')
+          echo "$vpc_id2"
+      
+      - name: "v5"
+        continue-on-error: true
+        run: |
+          vpc_id2=$(echo { "name": "John" } | jq -r '.[] | select(.name == "John") | .name')
+          echo "$vpc_id2"
+          
           
 
   deploy:
