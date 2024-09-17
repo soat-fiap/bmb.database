@@ -237,18 +237,6 @@ jobs:
         id: validate
         run: terraform validate
 
-      # - name: Config
-      #   run: |
-      #     cat <<EOF > seed.auto.tfvars
-      #     username = "${{ secrets.BMB_MYSQL_USER }}"
-      #     password = "${{ secrets.BMB_MYSQL_PASSWORD }}"
-      #     host = "${{ needs.deploy.outputs.host }}"
-      #     dbClusterIdentifier = "${{ vars.BMB_MYSQL_CLUSTER }}"
-      #     vpc_id = "${{ needs.deploy.outputs.vpc_id }}"
-      #     aws_access_key = "${{ secrets.AWS_ACCESS_KEY_ID }}"
-      #     aws_secret_key = "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-      #     EOF
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -263,10 +251,7 @@ jobs:
           -var="username=${{ secrets.BMB_MYSQL_USER }}" \
           -var="password=${{ secrets.BMB_MYSQL_PASSWORD }}" \
           -var="host=${{ needs.deploy.outputs.host }}" \
-          -var="dbClusterIdentifier=${{ vars.BMB_MYSQL_CLUSTER }}" \
-          -var="vpc_id=${{ needs.deploy.outputs.vpc_id }}" \
-          -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
-          -var="aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          -var="dbClusterIdentifier=${{ vars.BMB_MYSQL_CLUSTER }}"
           echo "secret_arn=$(terraform output -json | jq '.secret_arn.value' | sed 's/"//g')" >> $GITHUB_OUTPUT
 
       - name: Wake up Cluster

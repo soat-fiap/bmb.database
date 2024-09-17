@@ -21,18 +21,3 @@ variable "port" {
 variable "dbClusterIdentifier" {
   default = "techchallenge-mysql-local"
 }
-
-variable "vpc_id" {
-  type    = string
-  default = "vpc-0b99a7c15007a4fb3"
-}
-
-variable "aws_access_key" {
-  type      = string
-  sensitive = true
-}
-
-variable "aws_secret_key" {
-  type      = string
-  sensitive = true
-}
