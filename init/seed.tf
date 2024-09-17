@@ -10,6 +10,7 @@ resource "aws_security_group_rule" "mysql_ingress" {
   to_port           = 3306
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
+  description       = "ingress rule used to seed mysql database from pipeline"
 }
 
 resource "random_string" "random_suffix" {
