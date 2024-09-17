@@ -162,9 +162,8 @@ jobs:
       - run: |
           echo "Latest Run Status: ${{ steps.output.outputs.outputs }}"
       - run: |
-          echo "Latest: ${{ fromJson(steps.output.outputs.outputs) }}"
-            vpc_id=$(echo "${{ fromJson(steps.output.outputs.outputs) }}" | jq -r '.[] | select(.name == "vpc_id") | .value')
-            echo "$vpc_id"
+          vpc_id=$(echo "${{ steps.output.outputs.outputs }}" | jq -r '.[] | select(.name == "vpc_id") | .value')
+          echo "$vpc_id"
 
   deploy:
     needs: [test, terraform-settings]
