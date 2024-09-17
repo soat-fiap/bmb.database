@@ -253,12 +253,12 @@ jobs:
         id: apply
         run: |
           terraform apply -auto-approve \
-          -var="username="${{ secrets.BMB_MYSQL_USER }}" \
+          -var="username=${{ secrets.BMB_MYSQL_USER }}" \
           -var="password=${{ secrets.BMB_MYSQL_PASSWORD }}" \
           -var="host=${{ needs.deploy.outputs.host }}" \
           -var="dbClusterIdentifier=${{ vars.BMB_MYSQL_CLUSTER }}" \
           -var="vpc_id=${{ needs.deploy.outputs.vpc_id }}" \
-          -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY_ID }}"
+          -var="aws_access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" \
           -var="aws_secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
 
       - name: Create tables
