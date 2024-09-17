@@ -23,6 +23,6 @@ variable "dbClusterIdentifier" {
 }
 
 variable "vpc_id" {
-  type = string
+  type    = string
   default = "vpc-0b99a7c15007a4fb3"
 }
