@@ -66,8 +66,8 @@ module "aurora_db_serverless_cluster" {
   }
 
   master_username             = var.username
-  //master_password             = var.password
-  manage_master_user_password = true
+  master_password             = var.password
+  manage_master_user_password = false
 
   autoscaling_enabled  = false
   vpc_id               = data.aws_vpc.vpc.id

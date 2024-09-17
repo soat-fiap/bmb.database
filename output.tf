@@ -7,10 +7,16 @@ output "subnet_cidr_blocks" {
 }
 
 output "cluster" {
-  value     = module.aurora_db_serverless_cluster
-  sensitive = true
+  value = module.aurora_db_serverless_cluster.cluster_arn
 }
 
+output "host" {
+  value = module.aurora_db_serverless_cluster.cluster_endpoint
+}
+
+output "vpc_id" {
+  value = data.aws_vpc.vpc.id
+}
 # output "file" {
 #   value = null_resource.db_setup
 # }
