@@ -207,11 +207,25 @@ jobs:
           run: ${{ steps.apply-run.outputs.run_id }}
           comment: "Apply Run from GitHub Actions CI ${{ github.sha }}"
 
+      - name: Get output
+        uses: hashicorp/tfc-workflows-github/actions/workspace-output@v1.3.1
+        id: output
+        with:
+          workspace: ${{ env.TF_WORKSPACE }}
+      
+      - run: |
+          echo "Latest Run Status: ${{ steps.output.outputs.outputs }}"
+      - run: |
+          echo "Latest: ${{ fromJson(steps.output.outputs.outputs) }}"
+
   seed-database:
     needs: [deploy]
     name: "Seed database"
     runs-on: ubuntu-latest
     environment: dev
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     
     steps:
       # Checkout the repository to the GitHub Actions runner
@@ -259,8 +273,6 @@ jobs:
           aws rds-data execute-statement --resource-arn $CLUSTER_ARN --secret-arn $SECRET_ARN --database $DATABASE_NAME --sql "$(cat products_table.sql)"
           aws rds-data execute-statement --resource-arn $CLUSTER_ARN --secret-arn $SECRET_ARN --database $DATABASE_NAME --sql "$(cat payments_table.sql)"
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
           CLUSTER_ARN: ${{ needs.deploy.outputs.cluster }}
           SECRET_ARN: ${{ steps.apply.outputs.secret_arn }}
