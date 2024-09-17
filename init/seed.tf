@@ -39,6 +39,16 @@ resource "aws_secretsmanager_secret_version" "rds_secret_version" {
   })
 }
 
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~>5.64.0"
+    }
+  }
+  required_version = "~>1.9.4"
+}
+
 provider "aws" {
   region = "us-east-1"
   alias  = "us-east-1"
