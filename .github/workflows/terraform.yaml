@@ -222,17 +222,17 @@ jobs:
       - name: Terraform fmt
         id: fmt
         run: terraform fmt -check
-        working-directory: ${{ env.CONFIG_DIRECTORY }}/seed
+        working-directory: init
         
       - name: Terraform Init
         id: init
         run: terraform init -upgrade
-        working-directory: ${{ env.CONFIG_DIRECTORY }}/seed
+        working-directory: init
 
       - name: Terraform Validate
         id: validate
         run: terraform validate
-        working-directory: ${{ env.CONFIG_DIRECTORY }}/seed
+        working-directory: init
 
       - name: Config
         run: |
@@ -248,7 +248,7 @@ jobs:
       - name: Terraform apply
         id: apply
         run: terraform apply -auto-approve
-        working-directory:  ${{ env.CONFIG_DIRECTORY }}/seed
+        working-directory:  init
 
       - name: Create tables
         continue-on-error: true
@@ -269,4 +269,4 @@ jobs:
       - name: Terraform Destroy
         id: destroy
         run: terraform apply -auto-approve
-        working-directory:  ${{ env.CONFIG_DIRECTORY }}/seed
+        working-directory:  init
