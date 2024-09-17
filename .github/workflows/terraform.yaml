@@ -217,9 +217,9 @@ jobs:
     name: "Seed database"
     runs-on: ubuntu-latest
     environment: dev
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    defaults:
+      run:
+        working-directory: init
     
     steps:
       - name: Checkout
@@ -228,21 +228,18 @@ jobs:
       - name: Terraform fmt
         id: fmt
         run: terraform fmt -check
-        working-directory: init
         
       - name: Terraform Init
         id: init
         run: terraform init -upgrade
-        working-directory: init
 
       - name: Terraform Validate
         id: validate
         run: terraform validate
-        working-directory: init
 
       - name: Config
         run: |
-          cat <<EOF > seed.auto.tfvars
+          cat <<EOF > init/seed.auto.tfvars
           dbClusterIdentifier = "${{ vars.BMB_MYSQL_CLUSTER }}"
           database_name = "${{ vars.BMB_MYSQL_DATABASE }}"
           vpc_id = "${{ needs.deploy.outputs.vpc_id }}"
@@ -256,7 +253,6 @@ jobs:
       - name: Terraform apply
         id: apply
         run: terraform apply -auto-approve
-        working-directory: init
 
       - name: Create tables
         continue-on-error: true
@@ -275,4 +271,3 @@ jobs:
       - name: Terraform Destroy
         id: destroy
         run: terraform apply -auto-approve
-        working-directory: init
