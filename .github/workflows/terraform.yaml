@@ -249,6 +249,8 @@ jobs:
           username = "${{ secrets.BMB_MYSQL_USER }}"
           password = "${{ secrets.BMB_MYSQL_PASSWORD }}"
           host = "${{ needs.deploy.outputs.host }}"
+          aws_access_key = "${{ secrets.AWS_ACCESS_KEY_ID }}"
+          aws_secret_key = "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           EOF
 
       - name: Terraform apply
