@@ -165,33 +165,33 @@ jobs:
         with:
           workspace: ${{ env.TF_WORKSPACE }}
       
-      - name: "asdasdasd"
-        continue-on-error: true
-        run: |
-          echo "Latest Run Status: "${{ steps.output.outputs.outputs }}""
+      # - name: "asdasdasd"
+      #   continue-on-error: true
+      #   run: |
+      #     echo "Latest Run Status: "${{ steps.output.outputs.outputs }}""
       
-      - name: "v2"
-        continue-on-error: true
-        run: |
-          vpc_id=$(echo ${{ steps.output.outputs.outputs }} | jq -r '.[] | select(.name == "vpc_id") | .value')
-          echo "$vpc_id"
+      # - name: "v2"
+      #   continue-on-error: true
+      #   run: |
+      #     vpc_id=$(echo ${{ steps.output.outputs.outputs }} | jq -r '.[] | select(.name == "vpc_id") | .value')
+      #     echo "$vpc_id"
       
-      - name: "v3"
-        continue-on-error: true
-        run: |
-          vpc_id2=$(echo ${{ toJson(steps.output.outputs.outputs) }} | jq -r '.[] | select(.name == "vpc_id") | .value')
-          echo "$vpc_id2"
+      # - name: "v3"
+      #   continue-on-error: true
+      #   run: |
+      #     vpc_id2=$(echo ${{ toJson(steps.output.outputs.outputs) }} | jq -r '.[] | select(.name == "vpc_id") | .value')
+      #     echo "$vpc_id2"
 
-      - name: "v4"
-        continue-on-error: true
-        run: |
-          echo "{ \"name\": \"John\" }" | jq -r 'select(.name == "John") | .name'
+      # - name: "v4"
+      #   continue-on-error: true
+      #   run: |
+      #     echo "{ \"name\": \"John\" }" | jq -r 'select(.name == "John") | .name'
           
       
       - name: "v5"
         continue-on-error: true
         run: |
-          echo "vpc_id::$(echo "${{ toJson(steps.output.outputs.outputs) }}" | jq -r '.[] | select(.name == "vpc_id") | .value')"
+          echo "vpc_id::$(echo \"${{ toJson(steps.output.outputs.outputs) }}\" | jq -r '.[] | select(.name == "vpc_id") | .value')"
           echo "${{ toJson(steps.output.outputs.outputs) }}" | jq -r '.[] | select(.name == "cluster") | .value'
           echo "${{ toJson(steps.output.outputs.outputs) }}" | jq -r '.[] | select(.name == "host") | .value'
           
