@@ -151,7 +151,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: output
-            });
+            });       
 
   deploy:
     needs: [test, terraform-settings]
@@ -162,9 +162,10 @@ jobs:
     permissions:
       contents: read
     outputs:
-      vpc_id: ${{ steps.apply.outputs.vpc_id }}
-      host: ${{ steps.apply.outputs.host }}
-      cluster: ${{ steps.apply.outputs.cluster }}
+      vpc_id: ${{ steps.saving-workspace-output.outputs.vpc_id }}
+      cluster: ${{ steps.saving-workspace-output.outputs.cluster }}
+      host: ${{ steps.saving-workspace-output.outputs.host }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -199,14 +200,17 @@ jobs:
 
       - name: Get output
         uses: hashicorp/tfc-workflows-github/actions/workspace-output@v1.3.1
-        id: output
+        id: workspace-output
         with:
           workspace: ${{ env.TF_WORKSPACE }}
-      
-      - run: |
-          echo "Latest Run Status: ${{ steps.output.outputs.outputs }}"
-      - run: |
-          echo "Latest: ${{ fromJson(steps.output.outputs.outputs) }}"
+             
+      - name: "Saving workspace output"
+        id: saving-workspace-output
+        continue-on-error: true
+        run: |
+          echo "vpc_id=$(echo ${{ toJson(steps.workspace-output.outputs.outputs) }} | jq -r '.[] | select(.name == "vpc_id") | .value')" >> $GITHUB_OUTPUT
+          echo "cluster=$(echo ${{ toJson(steps.workspace-output.outputs.outputs) }} | jq -r '.[] | select(.name == "cluster") | .value')" >> $GITHUB_OUTPUT
+          echo "host=$(echo ${{ toJson(steps.workspace-output.outputs.outputs) }} | jq -r '.[] | select(.name == "host") | .value')" >> $GITHUB_OUTPUT
 
   seed-database:
     needs: [deploy]
@@ -218,10 +222,8 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     
     steps:
-      # Checkout the repository to the GitHub Actions runner
       - name: Checkout
         uses: actions/checkout@v4
-      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
 
       - name: Terraform fmt
         id: fmt
