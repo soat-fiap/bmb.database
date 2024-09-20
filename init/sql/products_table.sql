@@ -1,5 +1,7 @@
-create table IF NOT EXISTS Products(
-    Id          char(36)   not null primary key,
+CREATE TABLE IF NOT EXISTS Products
+(
+    Id          char(36)      not null comment 'product id'
+        primary key,
     Name        varchar(100)  not null,
     Description varchar(200)  not null,
     Category    int           not null,

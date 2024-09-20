@@ -252,7 +252,6 @@ jobs:
           -var="password=${{ secrets.BMB_MYSQL_PASSWORD }}" \
           -var="host=${{ needs.deploy.outputs.host }}" \
           -var="dbClusterIdentifier=${{ vars.BMB_MYSQL_CLUSTER }}"
-          echo "secret_arn=$(terraform output -json | jq '.secret_arn.value' | sed 's/"//g')" >> $GITHUB_OUTPUT
 
       - name: Wake up Cluster
         continue-on-error: true
@@ -263,18 +262,18 @@ jobs:
           SECRET_ARN: ${{ steps.apply.outputs.secret_arn }}
           DATABASE_NAME: ${{ vars.BMB_MYSQL_DATABASE }}
 
-      - name: Wait 60s for cluster to wake up
-        run: sleep 60s
+      - name: Wait 20s for cluster to wake up
+        run: sleep 20s
         shell: bash
 
       - name: Create tables
         continue-on-error: true
         run: |
-          aws rds-data execute-statement --resource-arn $CLUSTER_ARN --secret-arn $SECRET_ARN --database $DATABASE_NAME --sql "$(cat orders_table.sql)"
-          aws rds-data execute-statement --resource-arn $CLUSTER_ARN --secret-arn $SECRET_ARN --database $DATABASE_NAME --sql "$(cat order_items_table.sql)"
-          aws rds-data execute-statement --resource-arn $CLUSTER_ARN --secret-arn $SECRET_ARN --database $DATABASE_NAME --sql "$(cat customers_table.sql)"
-          aws rds-data execute-statement --resource-arn $CLUSTER_ARN --secret-arn $SECRET_ARN --database $DATABASE_NAME --sql "$(cat products_table.sql)"
-          aws rds-data execute-statement --resource-arn $CLUSTER_ARN --secret-arn $SECRET_ARN --database $DATABASE_NAME --sql "$(cat payments_table.sql)"
+          aws rds-data execute-statement --resource-arn $CLUSTER_ARN --secret-arn $SECRET_ARN --database $DATABASE_NAME --sql "$(cat sql/orders_table.sql)"
+          aws rds-data execute-statement --resource-arn $CLUSTER_ARN --secret-arn $SECRET_ARN --database $DATABASE_NAME --sql "$(cat sql/order_items_table.sql)"
+          aws rds-data execute-statement --resource-arn $CLUSTER_ARN --secret-arn $SECRET_ARN --database $DATABASE_NAME --sql "$(cat sql/customers_table.sql)"
+          aws rds-data execute-statement --resource-arn $CLUSTER_ARN --secret-arn $SECRET_ARN --database $DATABASE_NAME --sql "$(cat sql/products_table.sql)"
+          aws rds-data execute-statement --resource-arn $CLUSTER_ARN --secret-arn $SECRET_ARN --database $DATABASE_NAME --sql "$(cat sql/payments_table.sql)"
         env:
           AWS_DEFAULT_REGION: us-east-1
           CLUSTER_ARN: ${{ needs.deploy.outputs.cluster }}

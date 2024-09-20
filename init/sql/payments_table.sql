@@ -1,4 +1,4 @@
-create table IF NOT EXISTS Payments
+CREATE TABLE IF NOT EXISTS Payments
 (
     Id         char(36)   not null,
     OrderId    char(36)   not null,
@@ -8,5 +8,6 @@ create table IF NOT EXISTS Payments
     PaymentType int       not null,
     ExternalReference     varchar(36) not null,
     Amount     decimal(10,2) not null,
-    PRIMARY KEY (Id, OrderId)
+    PRIMARY KEY (Id, OrderId),
+    foreign key (OrderId) references Orders(Id)
 );
