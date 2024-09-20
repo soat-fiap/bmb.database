@@ -88,3 +88,7 @@ terraform apply
     Products ||--o{ OrderItems : "included in"
     Orders ||--o| Payments : "paid with"
 ```
+
+## This repo on the infrastructure
+
+![Architecture Diagram](aws-infra-phase-3.png)
