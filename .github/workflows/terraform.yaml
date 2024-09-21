@@ -282,7 +282,6 @@ jobs:
           DATABASE_NAME: ${{ vars.BMB_MYSQL_DATABASE }}
 
       - name: Terraform destroy
-        if: false
         id: destroy
         run: |
           terraform destroy -auto-approve \
