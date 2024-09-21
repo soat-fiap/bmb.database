@@ -7,6 +7,5 @@ CREATE TABLE IF NOT EXISTS Orders
     Status     int        not null,
     Created    datetime   null,
     Updated    datetime   null,
-    TrackingCode       varchar(7) null,
-    foreign key (CustomerId) references Customers(Id)
+    TrackingCode       varchar(7) null
 );
