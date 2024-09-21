@@ -252,6 +252,7 @@ jobs:
           -var="password=${{ secrets.BMB_MYSQL_PASSWORD }}" \
           -var="host=${{ needs.deploy.outputs.host }}" \
           -var="dbClusterIdentifier=${{ vars.BMB_MYSQL_CLUSTER }}"
+          echo "secret_arn=$(terraform output -json | jq '.secret_arn.value' | sed 's/"//g')" >> $GITHUB_OUTPUT
 
       - name: Wake up Cluster
         continue-on-error: true
