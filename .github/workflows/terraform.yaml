@@ -213,21 +213,6 @@ jobs:
           echo "cluster=$(echo ${{ toJson(steps.workspace-output.outputs.outputs) }} | jq -r '.[] | select(.name == "cluster") | .value')" >> $GITHUB_OUTPUT
           echo "host=$(echo ${{ toJson(steps.workspace-output.outputs.outputs) }} | jq -r '.[] | select(.name == "host") | .value')" >> $GITHUB_OUTPUT
   
-  destroy-plan:
-    if: false
-    name: "Create terraform destroy plan"
-    needs: [deploy]
-    runs-on: ubuntu-latest
-      
-    steps:
-      - name: Create plan
-        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.3.1
-        id: destroy-plan
-        with:
-          workspace: ${{ env.TF_WORKSPACE }}
-          configuration_version: ${{ needs.deploy.outputs.config_version }}
-          is_destroy: true
-
   seed-database:
     needs: [deploy]
     name: "Seed database"
@@ -301,3 +286,17 @@ jobs:
         id: destroy
         run: |
           terraform destroy -auto-approve
+
+  destroy-plan:
+    name: "Create terraform destroy plan"
+    needs: [deploy, seed-database]
+    runs-on: ubuntu-latest
+      
+    steps:
+      - name: Create plan
+        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.3.1
+        id: destroy-plan
+        with:
+          workspace: ${{ env.TF_WORKSPACE }}
+          configuration_version: ${{ needs.deploy.outputs.config_version }}
+          is_destroy: true
