@@ -297,6 +297,6 @@ jobs:
         uses: hashicorp/tfc-workflows-github/actions/create-run@v1.3.1
         id: destroy-plan
         with:
-          workspace: ${{ env.TF_WORKSPACE }}
+          workspace: ${{ vars.TF_WORKSPACE }}
           configuration_version: ${{ needs.deploy.outputs.config_version }}
           is_destroy: true
