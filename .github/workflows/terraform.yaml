@@ -291,7 +291,7 @@ jobs:
     name: "Create terraform destroy plan"
     needs: [deploy, seed-database]
     runs-on: ubuntu-latest
-      
+    environment: dev
     steps:
       - name: Create plan
         uses: hashicorp/tfc-workflows-github/actions/create-run@v1.3.1
