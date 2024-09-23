@@ -165,7 +165,7 @@ jobs:
       vpc_id: ${{ steps.saving-workspace-output.outputs.vpc_id }}
       cluster: ${{ steps.saving-workspace-output.outputs.cluster }}
       host: ${{ steps.saving-workspace-output.outputs.host }}
-      config_version: ${{ steps.plan-upload.outputs.configuration_version_id }}
+      config_version: ${{ steps.apply-upload.outputs.configuration_version_id }}
 
     steps:
       - name: Checkout
