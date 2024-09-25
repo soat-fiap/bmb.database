@@ -75,7 +75,6 @@ terraform apply
         decimal(10) Amount
     }
     
-    Customers ||--o{ Orders : "has"
     Orders ||--|{ OrderItems : "contains"
     Products ||--o{ OrderItems : "included in"
     Orders ||--o| Payments : "paid with"
