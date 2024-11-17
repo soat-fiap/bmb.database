@@ -102,4 +102,4 @@ I've decided to use MySQL as the database for the fast-food ordering system foll
     - I've also chosed to use Aurora Serverless, so I can take advantage of all serverless features like no need fo managing database servers, updates, patching and of course availability andscalability
 ## This repo on the infrastructure
 
-![Architecture Diagram](aws-infra-phase-3.png)
+![Architecture Diagram](aws-infra-phase-4.png)
