@@ -275,7 +275,6 @@ jobs:
           aws rds-data execute-statement --resource-arn $CLUSTER_ARN --secret-arn $SECRET_ARN --database $DATABASE_NAME --sql "$(cat sql/orders_table.sql)"
           aws rds-data execute-statement --resource-arn $CLUSTER_ARN --secret-arn $SECRET_ARN --database $DATABASE_NAME --sql "$(cat sql/products_table.sql)"
           aws rds-data execute-statement --resource-arn $CLUSTER_ARN --secret-arn $SECRET_ARN --database $DATABASE_NAME --sql "$(cat sql/order_items_table.sql)"
-          aws rds-data execute-statement --resource-arn $CLUSTER_ARN --secret-arn $SECRET_ARN --database $DATABASE_NAME --sql "$(cat sql/customers_table.sql)"
         env:
           AWS_DEFAULT_REGION: us-east-1
           CLUSTER_ARN: ${{ needs.deploy.outputs.cluster }}
