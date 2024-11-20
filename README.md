@@ -64,20 +64,8 @@ terraform apply
         int Quantity
     }
     
-    Payments {
-        char(36) Id
-        char(36) OrderId
-        int Status
-        datetime Created
-        datetime Updated
-        int PaymentType
-        varchar(36) ExternalReference
-        decimal(10) Amount
-    }
-    
     Orders ||--|{ OrderItems : "contains"
     Products ||--o{ OrderItems : "included in"
-    Orders ||--o| Payments : "paid with"
 ```
 
 ## No more Customers table
